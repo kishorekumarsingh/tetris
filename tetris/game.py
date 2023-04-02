@@ -6,14 +6,19 @@ import random
 from board import Board, BOARD_SIZE
 from piece import Piece
 from pieces import PIECES
+from state import RunningState, GameOverState
 
 
 class Game:
     def __init__(self):
+        self.state = RunningState()
         self.board = Board()
         self.piece = None
         self.piece_pos = None
         self.spawn_piece()
+
+    def set_state(self, new_state):
+        self.state = new_state
 
     def spawn_piece(self):
         """
@@ -84,35 +89,11 @@ class Game:
         Handles user interaction and gameplay logic
         :return:
         """
-        # Draw board
-        self.draw_board()
-        # While game is not over
-        while not self.game_over():
-            #   Ask for user input
-            user_input = input("Enter a move (a, d, w, s, space): ").lower()
-            dx, dy, rotation = 0, 0, 0
-
-            if user_input == 'a':
-                dx = -1
-            elif user_input == 'd':
-                dx = 1
-            elif user_input == 'w':
-                rotation = -1
-            elif user_input == 's':
-                rotation = 1
-            elif user_input == ' ':
-                pass
-            else:
-                print("Invalid input. Try again.")
-                continue
-
-            #   check if input is valid
-            valid_rotation = self.move_piece(dx, dy, rotation)
-
-            if not valid_rotation:
-                print("Invalid move. Try again.")
-            else:
-                if not self.move_piece(0, 1, 0):
-                    self.update_board()
-
+        while not isinstance(self.state, GameOverState):
             self.draw_board()
+            user_input = input("Enter a move (a, d, w, s, space, q): ").lower()
+            if user_input == 'q':
+                break
+
+            self.state.handle_input(self, user_input)
+            self.state.update(self)
