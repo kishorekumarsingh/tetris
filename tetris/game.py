@@ -90,7 +90,7 @@ class Game:
         while not self.game_over():
             #   Ask for user input
             user_input = input("Enter a move (a, d, w, s, space): ").lower()
-            dx, dy, rotation = 0, 1, 0
+            dx, dy, rotation = 0, 0, 0
 
             if user_input == 'a':
                 dx = -1
@@ -107,10 +107,9 @@ class Game:
                 continue
 
             #   check if input is valid
-            valid_rotation = self.move_piece(dx, 0, rotation)  # Check if the rotation is valid
-            valid_movement = self.move_piece(dx, 0, 0)  # Check if the horizontal and vertical movements are valid
+            valid_rotation = self.move_piece(dx, dy, rotation)
 
-            if not valid_rotation and not valid_movement:
+            if not valid_rotation:
                 print("Invalid move. Try again.")
             else:
                 if not self.move_piece(0, 1, 0):
