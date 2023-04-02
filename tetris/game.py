@@ -29,14 +29,40 @@ class Game:
         Prints the current status of the board to stdout
         :return:
         """
+        temp_board = [[' ' for _ in range(BOARD_SIZE[1])] for _ in range(BOARD_SIZE[0])]
 
-    def move_piece(self, dx, rotation):
+        for i, row in enumerate(self.board.board):
+            for j, cell in enumerate(row):
+                temp_board[i][j] = cell
+
+        for i, row in enumerate(self.piece.piece):
+            for j, cell in enumerate(row):
+                if cell != ' ':
+                    x, y = self.piece_pos[0] + i, self.piece_pos[1] + j
+                    if 0 <= x < BOARD_SIZE[0] and 0 <= y < BOARD_SIZE[1]:
+                        temp_board[x][y] = cell
+
+        for row in temp_board:
+            print('*' + ''.join(row) + '*')
+        print('*' * (BOARD_SIZE[1] + 2))
+
+    def move_piece(self, dx, dy, rotation):
         """
         Moves the piece to a new position based on user input
         :param dx:
+        :param dy:
         :param rotation:
         :return:
         """
+        new_piece = self.piece.rotate(rotation)
+        new_pos = (self.piece_pos[0] + dy, self.piece_pos[1] + dx)
+
+        if not self.board.is_valid_move(new_piece, new_pos):
+            return False
+
+        self.piece.piece = new_piece
+        self.piece_pos = new_pos
+        return True
 
     def update_board(self):
         """
@@ -59,8 +85,35 @@ class Game:
         :return:
         """
         # Draw board
+        self.draw_board()
         # While game is not over
-        #   Ask for user input
-        #   check if input is valid
-        #   Update board
-        #   Draw board
+        while not self.game_over():
+            #   Ask for user input
+            user_input = input("Enter a move (a, d, w, s, space): ").lower()
+            dx, dy, rotation = 0, 1, 0
+
+            if user_input == 'a':
+                dx = -1
+            elif user_input == 'd':
+                dx = 1
+            elif user_input == 'w':
+                rotation = -1
+            elif user_input == 's':
+                rotation = 1
+            elif user_input == ' ':
+                pass
+            else:
+                print("Invalid input. Try again.")
+                continue
+
+            #   check if input is valid
+            valid_movement = self.move_piece(dx, dy, rotation)
+
+            if not valid_movement:
+                print("Invalid move. Try again.")
+            else:
+                #   Update board
+                self.update_board()
+
+            #   Draw board
+            self.draw_board()
