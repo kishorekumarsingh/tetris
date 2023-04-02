@@ -107,13 +107,13 @@ class Game:
                 continue
 
             #   check if input is valid
-            valid_movement = self.move_piece(dx, dy, rotation)
+            valid_rotation = self.move_piece(dx, 0, rotation)  # Check if the rotation is valid
+            valid_movement = self.move_piece(dx, 0, 0)  # Check if the horizontal and vertical movements are valid
 
-            if not valid_movement:
+            if not valid_rotation and not valid_movement:
                 print("Invalid move. Try again.")
             else:
-                #   Update board
-                self.update_board()
+                if not self.move_piece(0, 1, 0):
+                    self.update_board()
 
-            #   Draw board
             self.draw_board()
