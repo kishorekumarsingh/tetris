@@ -1,4 +1,4 @@
-#Tetris Game
+# Tetris Game
 
 Directory Structure
 
@@ -15,10 +15,10 @@ Directory Structure
     ├── pieces.py
     └── state.py
    ```
-###Requirements
+### Requirements
 `Python 3.6 or higher`
 
-###How to Run
+### How to Run
 * Download the source code.
 
 * Open a terminal and navigate to the project directory.
