@@ -3,10 +3,10 @@ game.py contains the gameplay logic
 """
 
 import random
-from board import Board, BOARD_SIZE
-from piece import Piece
-from pieces import PIECES
-from state import RunningState, GameOverState
+from .board import Board, BOARD_SIZE
+from .piece import Piece
+from .pieces import PIECES
+from .state import RunningState, GameOverState
 
 
 class Game:
@@ -22,12 +22,28 @@ class Game:
 
     def spawn_piece(self):
         """
-        Spawns a new piece at the top center of the tetris board
+        Spawns a new piece at the top center of the Tetris board.
+        If the piece cannot be spawned normally, it is spawned randomly
+        at any horizontal position on the top row.
         :return:
         """
         piece_str = random.choice(PIECES)
         self.piece = Piece(piece_str)
-        self.piece_pos = (0, (BOARD_SIZE[1] - len(self.piece.piece)) // 2)
+
+        # Try to spawn the piece at the center first
+        center_pos = (0, (BOARD_SIZE[1] - len(self.piece.piece)) // 2)
+        if self.board.is_valid_move(self.piece.piece, center_pos):
+            self.piece_pos = center_pos
+            return
+
+        # If the center position is not valid, spawn at a random horizontal position
+        random_pos = (0, random.randint(0, BOARD_SIZE[1] - len(self.piece.piece[0])))
+        if self.board.is_valid_move(self.piece.piece, random_pos):
+            self.piece_pos = random_pos
+            return
+
+        # If no valid positions are found, set the piece position to None
+        self.piece_pos = None
 
     def draw_board(self):
         """
@@ -82,7 +98,7 @@ class Game:
         Checks if the piece is within the bounds of the board
         :return:
         """
-        return not self.board.is_valid_move(self.piece.piece, self.piece_pos)
+        return self.piece_pos is None
 
     def play(self):
         """
@@ -91,9 +107,15 @@ class Game:
         """
         while not isinstance(self.state, GameOverState):
             self.draw_board()
+
             user_input = input("Enter a move (a, d, w, s, space, q): ").lower()
             if user_input == 'q':
                 break
 
             self.state.handle_input(self, user_input)
             self.state.update(self)
+
+            # Check if the game is over
+            if self.game_over():
+                print("Game over!")
+                self.set_state(GameOverState())
